@@ -16,7 +16,7 @@
 <main>
     <section class="sidenav">
         <header class="header-sidenav" align="center">
-            <img src="/static/images/slack-black.svg" alt="">
+            <img src="/static/icons/slack-white.svg" alt="Logo de Flack">
         </header>
         <section class="channels">
             <article class="channel" id="channel">
@@ -33,9 +33,23 @@
                     </div>
                 </div>
             </article>
+            <article class="channel" id="channel">
+                <div class="channel-image">
+                    <img src="/static/images/platzi.png" height="48" alt="platzi">
+                </div>
+                <div class="channel-info">
+                    <div class="channel-info-intro">
+                        <h3>Platzi Learning</h3>
+                        <p>EquisDe</p>
+                    </div>
+                    <div class="last-message">
+                        <time datetime="12-04-2022">1 hour ago</time>
+                    </div>
+                </div>
+            </article>
         </section>
     </section>
-    <section class="messages-container active" id="messages-container">
+    <section class="messages-container" id="messages-container">
         <header class="messages-header">
             <button class="btn-leave" id="close-messages">
                 <img src="/static/icons/leave.svg" alt="salir icono">
@@ -49,7 +63,10 @@
                 </div>
             </div>
             <form class="form-message" id="form-message">
-                <input type="text" class="input-message" placeholder="Escribe un mensaje aqui">
+                <div class="form-message-container">
+                    <input type="text" class="input-message" placeholder="Escribe un mensaje aqui">
+                    <button class="btn-send-message"><img src="/static/icons/send.svg" width="22px" alt="Enviar"></button>
+                </div>
             </form>
         </div>
     </section>

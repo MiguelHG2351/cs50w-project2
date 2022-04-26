@@ -137,9 +137,29 @@ body {
 
 .form-message {
     padding: 1rem;
+    background-color: #3f0e40;
+}
+
+
+.form-message-container {
+    display: flex;
+    gap: .5rem;
 }
 
 .input-message {
-    width: 85%;
-    margin: 0 ;
+    box-sizing: border-box;
+    flex: 1;
+    margin: 0;
+    outline: 1px transparent;
+    border: none;
+    padding: .25rem .5rem;
+    border-radius: 6px;
+}
+
+.btn-send-message {
+    border-radius: 4px;
+    background-color: #114669;
+    border: none;
+    outline: 1px transparent;
+    padding: .5rem;
 }
