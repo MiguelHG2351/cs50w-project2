@@ -1,0 +1,58 @@
+{% extends 'layout.html' %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="/static/style.css">
+{% endblock %}
+
+{% block title %}
+<title>Flack</title>
+{% endblock %}
+
+{% block scripts %}
+<script defer src="/static/scripts/events.js"></script>
+{% endblock %}
+
+{% block content %}
+<main>
+    <section class="sidenav">
+        <header class="header-sidenav" align="center">
+            <img src="/static/images/slack-black.svg" alt="">
+        </header>
+        <section class="channels">
+            <article class="channel" id="channel">
+                <div class="channel-image">
+                    <img src="/static/images/platzi.png" height="48" alt="platzi">
+                </div>
+                <div class="channel-info">
+                    <div class="channel-info-intro">
+                        <h3>Platzi Learning</h3>
+                        <p>EquisDe</p>
+                    </div>
+                    <div class="last-message">
+                        <time datetime="12-04-2022">1 hour ago</time>
+                    </div>
+                </div>
+            </article>
+        </section>
+    </section>
+    <section class="messages-container active" id="messages-container">
+        <header class="messages-header">
+            <button class="btn-leave" id="close-messages">
+                <img src="/static/icons/leave.svg" alt="salir icono">
+            </button>
+            <img src="/static/images/platzi.png" height="48" alt="platzi">
+        </header>
+        <div class="messages-list">
+            <div class="messages">
+                <div class="message">
+                    <h3>Hola 2020-10-12</h3>
+                </div>
+            </div>
+            <form class="form-message" id="form-message">
+                <input type="text" class="input-message" placeholder="Escribe un mensaje aqui">
+            </form>
+        </div>
+    </section>
+</main>
+<footer></footer>
+{% endblock %}
