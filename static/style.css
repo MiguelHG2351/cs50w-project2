@@ -5,6 +5,7 @@ body {
     font-family: 'Poppins', Verdana, Geneva, Tahoma, sans-serif;
 }
 
+/* Sidenav */
 .header-sidenav {
     padding: 1.5rem 1rem;
     border-bottom: 1px solid #cccccc2b;
@@ -17,6 +18,25 @@ body {
     margin: 0;
     overflow: auto hidden;
 }
+
+/* Sidenav end */
+
+/* create channel */
+.create-channel-btn {
+    margin: 1rem auto;
+    width: 90%;
+    display: block;
+    padding: .5rem;
+    outline: 1px transparent;
+    border: none;
+    background-color: #0099ff;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+/* create channel end */
 
 .channels {
     display: flex;
@@ -56,14 +76,17 @@ body {
     margin-block-start: 0;
 }
 
+/* Message Section */
+
 .messages-container {
     transform: translateX(-100vw);
     position: fixed;
+    z-index: 9;	
     top: 0;
     left: 0;
     height: 100%;
     width: 100vw;
-    background-color: #282828;
+    background-color: #0b141a;
 }
 
 .messages-container.active {
@@ -127,11 +150,56 @@ body {
 }
 
 .messages {
+    padding: 1rem .5rem;
+    box-sizing: border-box;
     flex: 1;
+    overflow-y: auto;
 }
 
 /* Message container space */
 
+.message {
+    display: inline-block;
+    max-width: 90%;
+    box-sizing: border-box;
+    background-color: #202c33;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    position: relative;
+}
+
+.message + .message {
+    margin-top: .5rem;
+}
+
+.message time {
+    position: absolute;
+    right: 10px;
+    bottom: 3px;
+    color: #aaa;
+    font-size: 12px;
+}
+
+.message-data {
+    display: flex;
+    padding: .5rem;
+    position: relative;
+}
+
+.message-data > * {
+    margin: 0;
+}
+
+.message-author {
+    padding: .25rem .5rem;
+    color: #09f;
+}
+
+.message-data .padding {
+    align-self: flex-end;
+    width: 60px;
+}
 
 /* End Message container space */
 
@@ -162,4 +230,77 @@ body {
     border: none;
     outline: 1px transparent;
     padding: .5rem;
+}
+
+.btn-send-message img {
+    user-select: none;
+    pointer-events: none;
+}
+
+/* overlay */
+.overlay {
+    position: fixed;
+    display: none;
+    z-index: 10;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, .75);
+}
+
+.overlay.active {
+    display: block;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    display: none;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+    color: #fff;
+    z-index: 10;
+    top: 50%;
+    left: 50%;	
+    transform: translate(-50%, -50%);
+    width: 90%;
+    background-color: #3f0e40;
+    padding: 3rem 0;
+    border-radius: 12px;
+}
+
+.modal.active {
+    display: inline-flex;
+}
+
+.form-modal {
+    padding-bottom: 2rem;
+}
+
+.close-modal {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    background-color: #0099ff;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    text-align: center;
+}
+
+.close-modal-icon svg {
+    vertical-align: middle;
+}
+
+.form-modal input {
+    font-size: 16px;
+    border-radius: 4px;
+    padding: .5rem;
+    outline: 1px transparent;
 }

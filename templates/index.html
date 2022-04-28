@@ -9,17 +9,21 @@
 {% endblock %}
 
 {% block scripts %}
-<script defer src="/static/scripts/events.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.js" integrity="sha512-/xb5+PNOA079FJkngKI2jvID5lyiqdHXaUUcfmzE0X0BdpkgzIWHC59LOG90a2jDcOyRsd1luOr24UCCAG8NNw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
+<script defer type="module" src="/static/scripts/main.js"></script>
 {% endblock %}
 
 {% block content %}
 <main>
     <section class="sidenav">
         <header class="header-sidenav" align="center">
-            <img src="/static/icons/slack-white.svg" alt="Logo de Flack">
+            <img src="/static/icons/slack-black.svg" alt="Logo de Flack">
         </header>
+        <section class="create-channel">
+            <button class="create-channel-btn" id="btn-create-channel">Crear canal</button>
+        </section>
         <section class="channels">
-            <article class="channel" id="channel">
+            <article class="channel" data-channel="web50xni">
                 <div class="channel-image">
                     <img src="/static/images/platzi.png" height="48" alt="platzi">
                 </div>
@@ -33,7 +37,7 @@
                     </div>
                 </div>
             </article>
-            <article class="channel" id="channel">
+            <article class="channel" data-channel="cs50xni">
                 <div class="channel-image">
                     <img src="/static/images/platzi.png" height="48" alt="platzi">
                 </div>
@@ -59,17 +63,58 @@
         <div class="messages-list">
             <div class="messages">
                 <div class="message">
-                    <h3>Hola 2020-10-12</h3>
+                    <div class="message-author">
+                        <span>Enrique Urbina</span>
+                    </div>
+                    <div class="message-data">
+                        <p>Pues yo creo que... día libre</p>
+                        <span class="padding"></span>
+                    </div>
+                    <time>12:30PM</time>
+                </div>
+                <div class="message">
+                    <div class="message-author">
+                        <span>Enrique Urbina</span>
+                    </div>
+                    <div class="message-data">
+                        <p>Pues yo creo que... día libre</p>
+                        <span class="padding"></span>
+                    </div>
+                    <time>12:30PM</time>
                 </div>
             </div>
             <form class="form-message" id="form-message">
                 <div class="form-message-container">
                     <input type="text" class="input-message" placeholder="Escribe un mensaje aqui">
-                    <button class="btn-send-message"><img src="/static/icons/send.svg" width="22px" alt="Enviar"></button>
+                    <button id="btn-send-message" class="btn-send-message"><img src="/static/icons/send.svg" width="22px" alt="Enviar"></button>
                 </div>
             </form>
         </div>
     </section>
 </main>
 <footer></footer>
+
+<div class="overlay" id="overlay"></div>
+<div class="modal" id="modal-auth">
+    <img src="/static/icons/slack-black.svg" alt="Flack logo">
+    <h2>Inicia Sesión</h2>
+    <form class="form-modal" id="form-modal-auth">
+        <input type="text" name="username" autocomplete="new-password" placeholder="Ingresa un nombre">
+    </form>
+</div>
+
+<div class="modal" id="modal-channel">
+    <div class="close-modal" id="close-modal">
+        <span class="close-modal-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <path d="M25.3334 8.54666L23.4534 6.66666L16 14.12L8.54669 6.66666L6.66669 8.54666L14.12 16L6.66669 23.4533L8.54669 25.3333L16 17.88L23.4534 25.3333L25.3334 23.4533L17.88 16L25.3334 8.54666Z" fill="#111"/>
+            </svg>
+        </span>
+    </div>
+    <img src="/static/icons/slack-black.svg" alt="Flack logo">
+    <h2>Nombre del canal</h2>
+    <form class="form-modal" id="form-create-channel">
+        <input type="text" name="username" autocomplete="new-password" placeholder="Ingresa nombre de un canal">
+    </form>
+</div>
 {% endblock %}
