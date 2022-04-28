@@ -1,4 +1,5 @@
 import { isAutenticated, mutationObserver } from './utils.js'
+import { loadMessages, sendMessage, loadSocket } from './socket.js'
 
 const $messagesContainer = document.querySelector('#messages-container');
 const $closeMessages = document.querySelector('#close-messages');
@@ -16,8 +17,11 @@ const $modalAuth = document.querySelector('#modal-auth'); // autenticarse
 const $formModal = document.querySelector('#form-modal-auth'); // autenticarse
 const $modalChannel = document.querySelector('#modal-channel'); // crear canal 
 
+loadMessages()
+
 document.addEventListener('DOMContentLoaded', async () => {
     if(await isAutenticated()) {
+        loadSocket();
         console.log('User is autenticated')
     } else {
         console.log('User is not autenticated')
@@ -35,6 +39,8 @@ $channelList.forEach($channel => {
 
         window.localStorage.setItem('current-channel', channel);
         if(!$messagesContainer.classList.contains('active')) {
+            loadMessages();
+            
             $messagesContainer.classList.add('active');
         }
     })
@@ -63,6 +69,12 @@ $closeModal.addEventListener('click', function () {
 $formMessage.addEventListener('submit', function (e) {  
     e.preventDefault();
     console.log('submit');
+    const message = $formMessage.message.value;
+    if(message.length > 0) {
+        sendMessage(message);
+        $formMessage.message.value = '';
+    }
+
 })
 
 $formModal.addEventListener('submit', function (e) {  
@@ -79,6 +91,7 @@ $formModal.addEventListener('submit', function (e) {
         if(data.success) {
             $overlay.classList.remove('active');
             $modalAuth.classList.remove('active');
+            window.location.reload()
         }
     })
 })

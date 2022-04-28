@@ -14,6 +14,11 @@
 {% endblock %}
 
 {% block content %}
+<noscript>
+    Por favor habilita JavaScript para poder funcionar correctamente
+
+    En settings / browser / permissions / advanced / scripts / enable JavaScript
+</noscript>
 <main>
     <section class="sidenav">
         <header class="header-sidenav" align="center">
@@ -23,34 +28,56 @@
             <button class="create-channel-btn" id="btn-create-channel">Crear canal</button>
         </section>
         <section class="channels">
+            <!-- <article class="channel" data-channel="web50xni">
+                <div class="channel-image">
+                    <img src="/static/images/platzi.png" height="48" alt="platzi">
+                </div>
+                <div class="channel-info">
+                    <div class="channel-info-intro">
+                        <div class="last-message">
+                            <h3>Platzi Learning</h3>
+                            <time datetime="12-04-2022">1 hour ago</time>
+                        </div>
+                        <p>EquisDe</p>
+                    </div>
+                </div>
+            </article>
             <article class="channel" data-channel="web50xni">
                 <div class="channel-image">
                     <img src="/static/images/platzi.png" height="48" alt="platzi">
                 </div>
                 <div class="channel-info">
                     <div class="channel-info-intro">
-                        <h3>Platzi Learning</h3>
+                        <div class="last-message">
+                            <h3>Platzi Learning</h3>
+                            <time datetime="12-04-2022">1 hour ago</time>
+                        </div>
                         <p>EquisDe</p>
                     </div>
-                    <div class="last-message">
-                        <time datetime="12-04-2022">1 hour ago</time>
-                    </div>
                 </div>
-            </article>
-            <article class="channel" data-channel="cs50xni">
-                <div class="channel-image">
-                    <img src="/static/images/platzi.png" height="48" alt="platzi">
-                </div>
-                <div class="channel-info">
-                    <div class="channel-info-intro">
-                        <h3>Platzi Learning</h3>
-                        <p>EquisDe</p>
+            </article> -->
+            {% if request.cookies.get('session') %}
+                {% for channel in channels.keys() %}
+                <article class="channel" data-channel="{{ channel }}" data-channel="{{ channel }}">
+                    <div class="channel-image">
+                        <img src="/static/images/platzi.png" height="48" alt="platzi">
                     </div>
-                    <div class="last-message">
-                        <time datetime="12-04-2022">1 hour ago</time>
+                    <div class="channel-info">
+                        <div class="channel-info-intro">
+                            <div class="last-message">
+                                <h3>{{ channel }}</h3>
+                                <time datetime="12-04-2022">1 hour ago</time>
+                            </div>
+                            <p>
+                                {% if channels[channel]['messages'] | length > 0 %}
+                                    {{ channels[channel]['messages'][-1]['message'] }}
+                                {% endif %}
+                            </p>
+                        </div>
                     </div>
-                </div>
-            </article>
+                </article>
+                {% endfor %}
+            {% endif %}
         </section>
     </section>
     <section class="messages-container" id="messages-container">
@@ -61,7 +88,7 @@
             <img src="/static/images/platzi.png" height="48" alt="platzi">
         </header>
         <div class="messages-list">
-            <div class="messages">
+            <div class="messages" id="message-list">
                 <div class="message">
                     <div class="message-author">
                         <span>Enrique Urbina</span>
@@ -85,7 +112,7 @@
             </div>
             <form class="form-message" id="form-message">
                 <div class="form-message-container">
-                    <input type="text" class="input-message" placeholder="Escribe un mensaje aqui">
+                    <input type="text" name="message" class="input-message" placeholder="Escribe un mensaje aqui">
                     <button id="btn-send-message" class="btn-send-message"><img src="/static/icons/send.svg" width="22px" alt="Enviar"></button>
                 </div>
             </form>

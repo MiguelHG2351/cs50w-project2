@@ -1,7 +1,7 @@
 import os
 import datetime
 
-from flask import Flask, render_template, jsonify, request, make_response
+from flask import Flask, render_template, jsonify, request, make_response,send_file
 from flask_socketio import SocketIO, emit, join_room, leave_room
 
 app = Flask(__name__)
@@ -12,6 +12,7 @@ socketio = SocketIO(app)
 
 # Puedo emitir un evento del cliente hacia el servidor
 # Puedo enviar un evento al client como emit igualmente
+# para enviar los recursos puedo usar rutas dinamicas como /image/<algo>
 
 database = {
     'session': {
@@ -34,21 +35,23 @@ database = {
                 {
                     'id': 1,
                     'user_id': 1,
-                    'message': 'Este es un mensaje',
+                    'author': 'Miguel',
+                    'message': 'Bienvenido a Web50xni',
                     'timestamp': datetime.datetime.timestamp(datetime.datetime.now())
                 }
             ]
         },
         'cs50xni': {
-            'id': 2,
+            'id': 1,
             'users': [1,2,3,4,5,6,7],
             'messages': [
-                {
-                    'id': 1,
-                    'user_id': 1,
-                    'message': 'Este es un mensaje',
-                    'timestamp': datetime.datetime.timestamp(datetime.datetime.now())
-                }
+                # {
+                #     'id': 1,
+                #     'user_id': 1,
+                #     'author': 'Miguel',
+                #     'message': 'Bienvenido a cs50xni',
+                #     'timestamp': datetime.datetime.timestamp(datetime.datetime.now())
+                # }
             ]
         },
         'unizzz': {
@@ -56,8 +59,9 @@ database = {
             'users': [2,3,4,5,6,7],
             'messages': [
                 {
-                    'id': 1,
+                    'id': 2,
                     'user_id': 1,
+                    'author': 'Enrique',
                     'message': 'Este es un mensaje',
                     'timestamp': datetime.datetime.timestamp(datetime.datetime.now())
                 }
@@ -71,20 +75,43 @@ def connect(socket):
     print('Cliente conectado')
 
 @socketio.on('join channel')
-def join_channel(sid):
-    room = sid
+def join_channel(channel):
+    room = f'{channel} join'
     join_room(room)
+
+    message_channel = database['channels'][channel]['messages']
+    print('Mensaje actualizado')
+    print(message_channel)
+
+    emit(room, {
+        'messages': message_channel
+    }, room=room)
+    # message = {
+    #     'id': database['channels'][room]['messages'][-1]['id'] + 1,
+    #     'user_id': database['users'][database['session']['user']]['id'],
+    #     'message': 'Aguacate',
+    #     'timestamp': datetime.datetime.timestamp(datetime.datetime.now())
+    # }
+    # database['channels'][room]['messages'].append(message)
+    # emit(room, message, room=room)
+
+@socketio.on('send message')
+def join_channel(sid, message):
     
-    message = {
-        'id': database['channels'][room]['messages'][-1]['id'] + 1,
+    message_dict = {
+        'id': database['channels'][sid]['messages'][-1]['id'] + 1,
         'user_id': database['users'][database['session']['user']]['id'],
-        'message': 'Aguacate',
+        'author': database['session']['user'],
+        'message': message,
         'timestamp': datetime.datetime.timestamp(datetime.datetime.now())
     }
-    database['channels'][room]['messages'].append(message)
-    emit(room, message, room=room)
-    # socketio.join('web50xni')
-    
+    database['channels'][sid]['messages'].append(message_dict)
+    print(f'{sid} messages')
+    # print(database['channels'][sid]['messages'])
+    join_room(f'{sid} messages')
+    emit(f'{sid} messages', {
+        'messages': database['channels'][sid]['messages']
+    }, room=f'{sid} messages')
 
 # Autenticacion
 def auth(name):
@@ -147,3 +174,8 @@ def _auth():
             }), 404
 
     return auth(request.cookies.get('session'))
+
+@app.route("/imagen/<name>")
+def image(name):
+
+    return send_file(f'./static/images/{name}')

@@ -5,19 +5,46 @@ const socket = io();
 // io.on('message', (message) => {
 //     console.log('New message: ', message);
 // });
-const currentChannel = localStorage.getItem('current-channel');
 export const loadSocket = () => {
     socket.on('connect', () => {
         console.log('Connected to server');
-
-        socket.emit('join channel', currentChannel)
-    });    
+    });
 }
 
-export const loadMessage = () => {
-    socket.on(currentChannel, (data, other) => {
-        console.log('Incoming data: ');
-        console.log(data);
-        console.log(other);
-    });    
+function renderMessages(messages) {
+    const $messageList = document.querySelector('#message-list');
+    $messageList.innerHTML = '';
+
+    for(const message of messages) {
+        const messageCard = document.createElement('message-card')
+        messageCard.setAttribute('author', message.author)
+        messageCard.setAttribute('message', message.message)
+        messageCard.setAttribute('date', message.timestamp)
+
+        $messageList.appendChild(messageCard)
+    }
 }
+
+export const loadMessages = () => {
+    
+    const currentChannel = localStorage.getItem('current-channel');
+    const joinChannel = `${currentChannel} join`;
+    
+    socket.emit('join channel', currentChannel)
+    socket.on(joinChannel, (data) => {
+        renderMessages(data.messages)
+    });
+}
+
+export const sendMessage = (message) => {
+    const currentChannel = localStorage.getItem('current-channel');
+    const joinChannel = `${currentChannel} messages`;
+    
+    console.log(joinChannel);
+    socket.emit('send message', currentChannel, message);
+
+    socket.on(joinChannel, (data) => {
+        renderMessages(data.messages)
+    });
+}
+

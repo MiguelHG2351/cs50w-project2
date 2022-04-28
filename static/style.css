@@ -71,9 +71,19 @@ body {
     align-items: center;
 }
 
-.channel-info-intro > * {
+.channel-info-intro {
+    width: 100%;
+}
+
+.channel-info-intro * {
     margin-block-end: 0;
     margin-block-start: 0;
+}
+
+.last-message {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 /* Message Section */
@@ -154,6 +164,8 @@ body {
     box-sizing: border-box;
     flex: 1;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Message container space */
@@ -161,6 +173,7 @@ body {
 .message {
     display: inline-block;
     max-width: 90%;
+    width: fit-content;
     box-sizing: border-box;
     background-color: #202c33;
     border-top-right-radius: 12px;
@@ -189,6 +202,12 @@ body {
 
 .message-data > * {
     margin: 0;
+}
+
+.message-data p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .message-author {
