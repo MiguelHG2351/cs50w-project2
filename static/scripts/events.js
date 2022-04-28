@@ -92,6 +92,8 @@ $formModal.addEventListener('submit', function (e) {
             $overlay.classList.remove('active');
             $modalAuth.classList.remove('active');
             window.location.reload()
+        } else {
+            $formModal.reset();
         }
     })
 })

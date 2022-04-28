@@ -1,5 +1,6 @@
 import os
 import datetime
+import hashlib
 
 from flask import Flask, render_template, jsonify, request, make_response,send_file
 from flask_socketio import SocketIO, emit, join_room, leave_room
@@ -16,16 +17,12 @@ socketio = SocketIO(app)
 
 database = {
     'session': {
-        'user': 'Miguel'
     },
     'headers': {
-        'users_count': 1,
+        'users_count': 0,
         'channels_count': 3
     },
     'users': {
-        'Miguel': {
-            'id': 1,
-        }
     },
     'channels': {
         'web50xni': {
@@ -80,8 +77,6 @@ def join_channel(channel):
     join_room(room)
 
     message_channel = database['channels'][channel]['messages']
-    print('Mensaje actualizado')
-    print(message_channel)
 
     emit(room, {
         'messages': message_channel
@@ -98,25 +93,40 @@ def join_channel(channel):
 @socketio.on('send message')
 def join_channel(sid, message):
     
+    if len(database['channels'][sid]['messages']) > 1:
+        message_id = database['channels'][sid]['messages'][0]['id'] + 1
+    else:
+        message_id = 1
+
+    author = database['session'].get(request.cookies.get('session'), {}).get('user', None)
+
+    if author is None:
+        # generate error
+        raise Exception('No te has autenticado')
+
     message_dict = {
-        'id': database['channels'][sid]['messages'][-1]['id'] + 1,
-        'user_id': database['users'][database['session']['user']]['id'],
-        'author': database['session']['user'],
+        'id': message_id,
+        'author': author,
         'message': message,
         'timestamp': datetime.datetime.timestamp(datetime.datetime.now())
     }
     database['channels'][sid]['messages'].append(message_dict)
-    print(f'{sid} messages')
-    # print(database['channels'][sid]['messages'])
     join_room(f'{sid} messages')
     emit(f'{sid} messages', {
         'messages': database['channels'][sid]['messages']
     }, room=f'{sid} messages')
 
 # Autenticacion
-def auth(name):
-    # if name in database['users'] and database['session']['user'] == name:
-    if name in database['users']:
+def auth(hash_session):
+    if hash_session is None:
+        return jsonify({
+            'success': False,
+            'message': 'No te has autenticado'
+        }), 200
+    
+    get_name_session = database['session'].get(hash_session, {}).get('user', None)
+
+    if get_name_session in database['users']:
         return jsonify({
             'success': True,
             'message': 'Autenticado'
@@ -125,26 +135,22 @@ def auth(name):
     else:
         return jsonify({
             'success': False,
-            'message': 'No tienes acceso, no esta autenticado'
+            'message': 'No tienes acceso, este usuario aun no esta registrado'
         }), 403
 
 
 @app.route("/", methods=['GET', 'POST'])
 def _index():
     my_channels = {}
-    username = database['session']['user']
+    username = database['session'].get(request.cookies.get('session'), {}).get('user', None)
     user_id = database['users'].get(username, {}).get('id', None)
 
-    print(database['users'])
-    print(user_id)
-    print(username)
     for channel in database['channels'].keys():
         if user_id in database['channels'][channel]['users']:
             my_channels[channel] = {
                 **database['channels'][channel],
             }
     
-    print(my_channels)
 
     return render_template("index.html", channels=my_channels)
 
@@ -159,18 +165,37 @@ def _auth():
                 }
                 database['headers']['users_count'] += 1
 
-            database['session']['user'] = name
+            if not request.cookies.get('session'):
+                # get name of cookie
+                get_name_session = database['session'].get(request.cookies.get('session'), {}).get('session', None)
+                if get_name_session in database['users']:
+                    
+                    response_ = make_response(jsonify({
+                        'success': False,
+                        'message': 'Hay una session pero el usuario no existe'
+                    }))
+                    response_.set_cookie('token', '', expires=0)
+                    return response_, 403
+
+            hash_user = hashlib.sha256(name.encode()).hexdigest()
+            # add to session
+            database['session'][hash_user] = {
+                'user': name
+            }
+            
             response = make_response(jsonify({
                 'success': True,
                 'message': 'Autenticado :D'
             }))
-            response.set_cookie('session', name, httponly=True)
+            response.set_cookie('session', hash_user, httponly=True)
 
             return response, 200
-        except:
+        except Exception as e:
+            print(e)
             return jsonify({
                 'success': False,
-                'message': 'No se puede agregar este usuario'
+                'message': 'No se puede agregar este usuario',
+                'error': str(e)
             }), 404
 
     return auth(request.cookies.get('session'))
