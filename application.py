@@ -1,3 +1,4 @@
+from io import BytesIO
 import os
 import datetime
 import hashlib
@@ -15,6 +16,16 @@ socketio = SocketIO(app)
 # Puedo enviar un evento al client como emit igualmente
 # para enviar los recursos puedo usar rutas dinamicas como /image/<algo>
 
+def get_image_test():
+    image = open('./static/images/platzi.png', 'rb')
+    image_read = image.read()
+    image.close()
+    return BytesIO(image_read)
+
+def get_image(image_form):
+    return BytesIO(image_form)
+
+
 database = {
     'session': {
     },
@@ -27,7 +38,12 @@ database = {
     'channels': {
         'web50xni': {
             'id': 1,
-            'users': [1,2,3,4,5,6,7],
+            'users': [1],
+            'image': {
+                'image_binary': lambda: get_image_test(),
+                'url': '/images/channel/web50xni',
+                'mime_type': 'image/png'
+            },
             'messages': [
                 {
                     'id': 1,
@@ -39,8 +55,13 @@ database = {
             ]
         },
         'cs50xni': {
-            'id': 1,
+            'id': 2,
             'users': [1,2,3,4,5,6,7],
+            'image': {
+                'image_binary': lambda: get_image_test(),
+                'url': '/images/channel/web50xni',
+                'mime_type': 'image/png'
+            },
             'messages': [
                 # {
                 #     'id': 1,
@@ -54,6 +75,11 @@ database = {
         'unizzz': {
             'id': 3,
             'users': [2,3,4,5,6,7],
+            'image': {
+                'image_binary': lambda: get_image_test(),
+                'url': '/images/channel/unizzz',
+                'mime_type': 'image/png'
+            },
             'messages': [
                 {
                     'id': 2,
@@ -67,9 +93,46 @@ database = {
     }
 }
 
+def get_channel_user():
+    my_channels = {}
+
+    username = database['session'].get(request.cookies.get('session'), {}).get('user', None)
+    user_id = database['users'].get(username, {}).get('id', None)
+
+    for channel in database['channels'].keys():
+        if user_id in database['channels'][channel]['users']:
+            my_channels[channel] = {
+                **database['channels'][channel],
+                # esto es para no enviar el binario por el evento
+                'image': {
+                    'image_binary': ''
+                }
+            }
+
 @socketio.on('connect')
 def connect(socket):
     print('Cliente conectado')
+
+
+@socketio.on('channels list')
+def channels_list():
+    my_channels = {}
+    username = database['session'].get(request.cookies.get('session'), {}).get('user', None)
+    user_id = database['users'].get(username, {}).get('id', None)
+
+    for channel in database['channels'].keys():
+        if user_id in database['channels'][channel]['users']:
+            my_channels[channel] = {
+                **database['channels'][channel],
+                # esto es para no enviar el binario por el evento
+                'image': {
+                    **database['channels'][channel]['image'],
+                    'image_binary': ''
+                }
+            }
+
+    print(my_channels)
+    emit('channels list', my_channels, broadcast=True)
 
 @socketio.on('join channel')
 def join_channel(channel):
@@ -81,14 +144,6 @@ def join_channel(channel):
     emit(room, {
         'messages': message_channel
     }, room=room)
-    # message = {
-    #     'id': database['channels'][room]['messages'][-1]['id'] + 1,
-    #     'user_id': database['users'][database['session']['user']]['id'],
-    #     'message': 'Aguacate',
-    #     'timestamp': datetime.datetime.timestamp(datetime.datetime.now())
-    # }
-    # database['channels'][room]['messages'].append(message)
-    # emit(room, message, room=room)
 
 @socketio.on('send message')
 def join_channel(sid, message):
@@ -149,10 +204,66 @@ def _index():
         if user_id in database['channels'][channel]['users']:
             my_channels[channel] = {
                 **database['channels'][channel],
+                'image': {
+                    **database['channels'][channel]['image'],
+                    'image_binary': ''
+                }
             }
     
+    print(my_channels)
 
     return render_template("index.html", channels=my_channels)
+
+@app.route('/add-user', methods=['POST'])
+def add_user_channel():
+    username = request.form.get('username')
+    channel = request.form.get('channel')
+
+    # add user to channel
+    database['channels'][channel]['users'].append(database['users'][username]['id'])
+
+    return jsonify({
+        'success': True,
+        'message': 'Usuario agregado'
+    })
+
+@app.route('/create-channel', methods=['POST'])
+def upload_channel_image():
+    image_upload = request.files.get('image_channel')
+    channel_name = request.form.get('channel_name')
+    mime_type = image_upload.content_type
+    user_name = database['session'].get(request.cookies.get('session'), {}).get('user', None)
+    user_id = database['users'].get(user_name, {}).get('id', None)
+
+    image_data = image_upload.read()
+    image_upload.close()
+
+    if channel_name in database['channels']:
+        return jsonify({
+            'success': False,
+            'message': 'Ya existe un canal con ese nombre'
+        }), 403
+
+    channel_dict = {
+        'id': database['headers']['channels_count'] + 1,
+        'users': [user_id],
+        'image': {
+            'image_binary': lambda: get_image(image_data),
+            'url': f'/images/channel/{channel_name}',
+            'mime_type': mime_type
+        },
+        'messages': []
+    }
+
+    database['headers']['channels_count'] += 1
+    database['channels'][channel_name] = channel_dict
+
+    print(database['channels'])
+
+    return jsonify({
+        'success': True,
+        'message': 'Canal creado'
+    })
 
 @app.route("/auth", methods=['GET', 'POST'])
 def _auth():
@@ -187,7 +298,7 @@ def _auth():
                 'success': True,
                 'message': 'Autenticado :D'
             }))
-            response.set_cookie('session', hash_user, httponly=True)
+            response.set_cookie('session', hash_user, httponly=True, expires=datetime.datetime.now() + datetime.timedelta(days=1))
 
             return response, 200
         except Exception as e:
@@ -200,7 +311,20 @@ def _auth():
 
     return auth(request.cookies.get('session'))
 
+@app.route("/images/channel/<channel>")
+def image_channel(channel):
+    get_image = database['channels'][channel]['image']['image_binary']
+    get_mime_type = database['channels'][channel]['image']['mime_type']
+
+    return send_file(get_image(), mimetype=get_mime_type)
+
 @app.route("/imagen/<name>")
 def image(name):
 
     return send_file(f'./static/images/{name}')
+
+@app.route("/bytes")
+def bytes_j():
+    temp_image1 = BytesIO(get_image())
+
+    return send_file(temp_image1, mimetype='image/png')

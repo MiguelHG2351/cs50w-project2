@@ -28,64 +28,41 @@
             <button class="create-channel-btn" id="btn-create-channel">Crear canal</button>
         </section>
         <section class="channels">
-            <!-- <article class="channel" data-channel="web50xni">
-                <div class="channel-image">
-                    <img src="/static/images/platzi.png" height="48" alt="platzi">
-                </div>
-                <div class="channel-info">
-                    <div class="channel-info-intro">
-                        <div class="last-message">
-                            <h3>Platzi Learning</h3>
-                            <time datetime="12-04-2022">1 hour ago</time>
-                        </div>
-                        <p>EquisDe</p>
-                    </div>
-                </div>
-            </article>
-            <article class="channel" data-channel="web50xni">
-                <div class="channel-image">
-                    <img src="/static/images/platzi.png" height="48" alt="platzi">
-                </div>
-                <div class="channel-info">
-                    <div class="channel-info-intro">
-                        <div class="last-message">
-                            <h3>Platzi Learning</h3>
-                            <time datetime="12-04-2022">1 hour ago</time>
-                        </div>
-                        <p>EquisDe</p>
-                    </div>
-                </div>
-            </article> -->
             {% if request.cookies.get('session') %}
                 {% for channel in channels.keys() %}
-                <article class="channel" data-channel="{{ channel }}" data-channel="{{ channel }}">
-                    <div class="channel-image">
-                        <img src="/static/images/platzi.png" height="48" alt="platzi">
-                    </div>
-                    <div class="channel-info">
-                        <div class="channel-info-intro">
-                            <div class="last-message">
-                                <h3>{{ channel }}</h3>
-                                <time datetime="12-04-2022">1 hour ago</time>
-                            </div>
-                            <p>
-                                {% if channels[channel]['messages'] | length > 0 %}
-                                    {{ channels[channel]['messages'][-1]['message'] }}
-                                {% endif %}
-                            </p>
-                        </div>
-                    </div>
-                </article>
+                    {% set channel_timestamp = '' %}
+                    {% set channel_last_message = '' %}
+
+                    {% if channels[channel]['messages'] | length > 0 %}
+                        {% set channel_timestamp = channels[channel]['messages'][-1]['timestamp'] %}
+                        {% set channel_last_message = channels[channel]['messages'][-1]['message'] %}
+                    {% endif %}
+                    <channel-item 
+                        class="channel" 
+                        role="article" 
+                        data-channel="{{channel}}" 
+                        channelName="{{channel}}" 
+                        lastMessage="{{channel_last_message}}" 
+                        image="{{channels[channel]['image']['url']}}"
+                        date="{{channel_timestamp}}">
+                    </channel-item>
                 {% endfor %}
             {% endif %}
         </section>
     </section>
     <section class="messages-container" id="messages-container">
         <header class="messages-header">
-            <button class="btn-leave" id="close-messages">
-                <img src="/static/icons/leave.svg" alt="salir icono">
-            </button>
-            <img src="/static/images/platzi.png" height="48" alt="platzi">
+            <div class="message-header-left">
+                <button class="btn-leave" id="close-messages">
+                    <img src="/static/icons/leave.svg" width="32" alt="salir icono">
+                </button>
+                <img src="/static/images/platzi.png" height="32" alt="platzi">
+            </div>
+            <div class="message-header-right">
+                <button class="btn-add-user" id="btn-add-user">
+                    <img src="/static/icons/add-icon.svg" width="18" alt="agregar icono">
+                </button>
+            </div>
         </header>
         <div class="messages-list">
             <div class="messages" id="message-list">
@@ -112,7 +89,7 @@
             </div>
             <form class="form-message" id="form-message">
                 <div class="form-message-container">
-                    <input type="text" name="message" class="input-message" placeholder="Escribe un mensaje aqui">
+                    <input type="text" required name="message" class="input-message" placeholder="Escribe un mensaje aqui">
                     <button id="btn-send-message" class="btn-send-message"><img src="/static/icons/send.svg" width="22px" alt="Enviar"></button>
                 </div>
             </form>
@@ -122,11 +99,27 @@
 <footer></footer>
 
 <div class="overlay" id="overlay"></div>
+
 <div class="modal" id="modal-auth">
     <img src="/static/icons/slack-black.svg" alt="Flack logo">
     <h2>Inicia Sesión</h2>
-    <form class="form-modal" id="form-modal-auth">
-        <input type="text" name="username" autocomplete="new-password" placeholder="Ingresa un nombre">
+    <form class="form-modal" id="form-auth">
+        <input type="text" required name="username" autocomplete="new-password" placeholder="Ingresa un nombre">
+    </form>
+</div>
+
+<div class="modal" id="modal-add-user">
+    <div class="close-modal" id="close-modal">
+        <span class="close-modal-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <path d="M25.3334 8.54666L23.4534 6.66666L16 14.12L8.54669 6.66666L6.66669 8.54666L14.12 16L6.66669 23.4533L8.54669 25.3333L16 17.88L23.4534 25.3333L25.3334 23.4533L17.88 16L25.3334 8.54666Z" fill="#111"/>
+            </svg>
+        </span>
+    </div>
+    <img src="/static/icons/slack-black.svg" alt="Flack logo">
+    <h2>Agrega un usuario</h2>
+    <form class="form-modal" id="form-add-user">
+        <input type="text" required name="username" autocomplete="new-password" placeholder="Ingresa el nombre">
     </form>
 </div>
 
@@ -141,7 +134,11 @@
     <img src="/static/icons/slack-black.svg" alt="Flack logo">
     <h2>Nombre del canal</h2>
     <form class="form-modal" id="form-create-channel">
-        <input type="text" name="username" autocomplete="new-password" placeholder="Ingresa nombre de un canal">
+        <div class="add-image">
+            <span>Agregar imagen</span>
+            <input type="file" class="add-image-input" required name="image_channel" accept="image/*">
+        </div>
+        <input type="text" name="channel_name" autocomplete="new-password" placeholder="Ingresa nombre de un canal" required>
     </form>
 </div>
 {% endblock %}

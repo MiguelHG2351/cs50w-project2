@@ -1,4 +1,5 @@
 import './events.js';
+import { getTimeAgo } from './utils.js'
 
 class MessageCard extends HTMLElement {
     getTemplate() {
@@ -32,6 +33,50 @@ class MessageCard extends HTMLElement {
     }
 }
 
+class ChannelItem extends HTMLElement {
+    getTemplate() {
+        const channelName = this.getAttribute('channelName');
+        const lastMessage = this.getAttribute('lastMessage');
+        const image = this.getAttribute('image');
+        const getDate = this.getAttribute('date');
+
+        let timeAgo = ''
+        let fullDate = '';
+        
+        if (getDate.length > 0) {
+            timeAgo = getTimeAgo(getDate * 1000);
+            fullDate = Intl.DateTimeFormat('en-US').format(getDate)
+        }
+
+        const template = document.createElement('template');
+        template.innerHTML = `
+            <div class="channel-image">
+                <img src="${image}" height="48" alt="platzi">
+            </div>
+            <div class="channel-info">
+                <div class="channel-info-intro">
+                    <div class="last-message">
+                        <h3>${channelName}</h3>
+                        <time datetime="${fullDate}">${timeAgo}</time>
+                    </div>
+                    <p>${lastMessage}</p>
+                </div>
+            </div>
+        `
+
+        return template;
+    }
+
+    render() {
+        this.appendChild(this.getTemplate().content.cloneNode(true));
+    }
+    
+    connectedCallback() {
+        this.render();
+    }
+}
+
 customElements.define('message-card', MessageCard);
+customElements.define('channel-item', ChannelItem);
 
 // const socket = io()
