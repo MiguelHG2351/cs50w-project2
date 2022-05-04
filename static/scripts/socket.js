@@ -19,12 +19,11 @@ export const loadMessages = () => {
     
     socket.emit('join channel', currentChannel)
     
-    console.log(socket.listeners('join channel'))
     socket.on(joinChannel, (data) => {
+        console.log(socket.listeners(joinChannel))
         console.log(data)
         renderMessages(data.messages)
     });
-
 }
 
 export const sendMessage = (message) => {
@@ -41,7 +40,6 @@ export const sendMessage = (message) => {
 
 export const loadChannel = () => {
     socket.emit('channels list')
-    
     socket.on('channels list', (data) => {
         renderChannels(Object.entries(data))
     });

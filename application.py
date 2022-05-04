@@ -31,65 +31,11 @@ database = {
     },
     'headers': {
         'users_count': 0,
-        'channels_count': 3
+        'channels_count': 0
     },
     'users': {
     },
     'channels': {
-        'web50xni': {
-            'id': 1,
-            'users': [1],
-            'image': {
-                'image_binary': lambda: get_image_test(),
-                'url': '/images/channel/web50xni',
-                'mime_type': 'image/png'
-            },
-            'messages': [
-                {
-                    'id': 1,
-                    'user_id': 1,
-                    'author': 'Miguel',
-                    'message': 'Bienvenido a Web50xni',
-                    'timestamp': datetime.datetime.timestamp(datetime.datetime.now())
-                }
-            ]
-        },
-        'cs50xni': {
-            'id': 2,
-            'users': [1,2,3,4,5,6,7],
-            'image': {
-                'image_binary': lambda: get_image_test(),
-                'url': '/images/channel/web50xni',
-                'mime_type': 'image/png'
-            },
-            'messages': [
-                # {
-                #     'id': 1,
-                #     'user_id': 1,
-                #     'author': 'Miguel',
-                #     'message': 'Bienvenido a cs50xni',
-                #     'timestamp': datetime.datetime.timestamp(datetime.datetime.now())
-                # }
-            ]
-        },
-        'unizzz': {
-            'id': 3,
-            'users': [2,3,4,5,6,7],
-            'image': {
-                'image_binary': lambda: get_image_test(),
-                'url': '/images/channel/unizzz',
-                'mime_type': 'image/png'
-            },
-            'messages': [
-                {
-                    'id': 2,
-                    'user_id': 1,
-                    'author': 'Enrique',
-                    'message': 'Este es un mensaje',
-                    'timestamp': datetime.datetime.timestamp(datetime.datetime.now())
-                }
-            ]
-        },
     }
 }
 
@@ -218,6 +164,12 @@ def _index():
 def add_user_channel():
     username = request.form.get('username')
     channel = request.form.get('channel')
+
+    if database['users'][username]['id'] in database['channels'][channel]['users']:
+        return jsonify({
+            'success': False,
+            'message': 'El usuario ya esta en el canal'
+        })
 
     # add user to channel
     database['channels'][channel]['users'].append(database['users'][username]['id'])
