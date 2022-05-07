@@ -187,6 +187,7 @@ body {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    scroll-behavior: smooth;
 }
 
 
@@ -245,8 +246,63 @@ body {
 .form-message {
     padding: 1rem;
     background-color: #3f0e40;
+    position: relative;
 }
 
+.message-options {
+    position: absolute;
+    display: none;
+    bottom: 73px;
+    z-index: 11;
+    left: 0;
+    right: 0;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    padding: .75rem;
+    background-color: #114669;
+}
+
+.message-options.active {
+    display: block;
+}
+
+.image-message-option {
+    padding: .5rem;
+    list-style: none;
+    position: relative;
+    display: inline-block;
+    background-color: #2eb67d;
+    border-radius: 50%;
+    font-size: 0;
+}
+
+.image-message-option::after {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    border-radius: 50%;
+    user-select: none;
+    pointer-events: none;
+    border: 1px solid #2eb67d;
+    z-index: 11;
+}
+
+.image-message-option img {
+    vertical-align: middle;
+    display: inline-block;
+}
+
+.input-file-image {
+    position: absolute;    
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0;
+}
 
 .form-message-container {
     display: flex;

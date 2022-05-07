@@ -66,30 +66,16 @@
         </header>
         <div class="messages-list">
             <div class="messages" id="message-list">
-                <div class="message">
-                    <div class="message-author">
-                        <span>Enrique Urbina</span>
-                    </div>
-                    <div class="message-data">
-                        <p>Pues yo creo que... día libre</p>
-                        <span class="padding"></span>
-                    </div>
-                    <time>12:30PM</time>
-                </div>
-                <div class="message">
-                    <div class="message-author">
-                        <span>Enrique Urbina</span>
-                    </div>
-                    <div class="message-data">
-                        <p>Pues yo creo que... día libre</p>
-                        <span class="padding"></span>
-                    </div>
-                    <time>12:30PM</time>
-                </div>
             </div>
             <form class="form-message" id="form-message">
+                <div class="message-options">
+                    <div class="image-message-option">
+                        <img src="/static/icons/image-icon.svg" alt="Imagen icono">
+                        <input class="input-file-image" name="image-message" type="file" />
+                    </div>
+                </div>
                 <div class="form-message-container">
-                    <input type="text" required name="message" class="input-message" placeholder="Escribe un mensaje aqui">
+                    <input type="text" required name="message" autocomplete="new-password" class="input-message" placeholder="Escribe un mensaje aqui">
                     <button id="btn-send-message" class="btn-send-message"><img src="/static/icons/send.svg" width="22px" alt="Enviar"></button>
                 </div>
             </form>

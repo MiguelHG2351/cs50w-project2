@@ -5,6 +5,7 @@ import { loadMessages, loadChannel, sendMessage, loadSocket } from './socket.js'
 const $messagesContainer = document.querySelector('#messages-container');
 const $closeMessages = document.querySelector('#close-messages');
 const $channelList = document.querySelectorAll('.channel');
+const $messageOptions = document.querySelector('.message-options');
 
 // buttons
 // const $btnSendMessage = document.querySelector('#btn-send-message'); la idea era que al precionar
@@ -20,6 +21,7 @@ const $formAddUser = document.querySelector('#form-add-user');
 
 // inputs
 const $imageInput = document.querySelector('.add-image-input');
+const $inputMessage = document.querySelector('.input-message')
 
 // Modals / overlay
 const $overlay = document.querySelector('#overlay');
@@ -28,20 +30,31 @@ const $modalChannel = document.querySelector('#modal-channel'); // crear canal
 const $modalAddUser = document.querySelector('#modal-add-user');
 
 // events functions
-function toggleModal($modal) {
-    return () => {
-        $overlay.classList.toggle('active');
-        $modal.classList.toggle('active');
-    }
-}
 
 async function domContentLoadedHandler() {
+
     if(await isAutenticated()) {
         loadSocket();
         console.log('User is autenticated')
     } else {
         console.log('User is not autenticated')
         toggleModal($modalAuth)();
+    }
+}
+
+async function keyUpScape(e) {
+    const $modal = document.querySelector('.modal.active:not(#modal-auth)');
+    if(e.key === 'Escape' && $modal != null) {
+        toggleModal($modal)();
+    }
+}
+
+function toggleModal($modal) {
+    return () => {
+        $overlay.classList.toggle('active');
+        $modal.classList.toggle('active');
+
+        $modal.querySelector('input[type="text"]').focus();
     }
 }
 
@@ -83,6 +96,7 @@ function formMessageHandler(e) {
     const message = $formMessage.message.value;
     if(message.length > 0) {
         sendMessage(message);
+
         $formMessage.message.value = '';
     }
 }
@@ -120,10 +134,19 @@ function imageInputHandler() {
     }
 }
 
+function inputMessageHandler() {
+    console.log()
+    if(this.value === '/') {
+        $messageOptions.classList.add('active')
+    } else {
+        $messageOptions.classList.remove('active')
+    }
+}
+
+// forms function
+
 function formCreateChannelHandler(e) {
     e.preventDefault();
-    const channelName = $formCreateChannel.channel_name.value;
-    const image = $formCreateChannel.image_channel.files[0];
 
     fetch('/create-channel', {
         method: 'POST',
@@ -141,7 +164,6 @@ function formCreateChannelHandler(e) {
 
 function formAddUserHandler(e) {
     e.preventDefault()
-    const username = $formAddUser.username.value;
     const currentChannel = window.localStorage.getItem('current-channel');
     const formData = new FormData($formAddUser);
     formData.set('channel', currentChannel);
@@ -153,7 +175,17 @@ function formAddUserHandler(e) {
         return data.json()
     }).then(data => {
         console.log(data)
-    })
+        if (data.success) {
+            toggleModal($modalAddUser)();
+            loadChannel();
+            $formMessage.message.focus();
+        } else {
+            $formAddUser.reset();
+            toggleModal($modalAddUser)();
+            alert('El usuario ya esta en el canal')
+            $formMessage.message.focus();
+        }
+    }).catch(err => console.error(err))
     
 }
 
@@ -161,28 +193,27 @@ function formAddUserHandler(e) {
 const observer = new MutationObserver(mutationObserver)
 observer.observe($modalAuth, { childList: true, subtree: true })
 
+// global events
 document.addEventListener('DOMContentLoaded', domContentLoadedHandler)
+document.addEventListener('keyup', keyUpScape)
+
+//containers
 $channelList.forEach(channelListHandler)
 
 // buttons events
 $closeMessages.addEventListener('click', closeMessagesHandler)
-
 $btnCreateChannel.addEventListener('click', toggleModal($modalChannel))
-
 $closeModals.forEach(closeModalHandler)
-
 $btnAddUser.addEventListener('click', toggleModal($modalAddUser))
 
 // inputs events
 
 $imageInput.addEventListener('change', imageInputHandler)
+$inputMessage.addEventListener('input', inputMessageHandler)
 
 // Forms events
 
 $formMessage.addEventListener('submit', formMessageHandler)
-
 $formModalAuth.addEventListener('submit', formModalAuthHandler)
-
 $formCreateChannel.addEventListener('submit', formCreateChannelHandler)
-
 $formAddUser.addEventListener('submit', formAddUserHandler)

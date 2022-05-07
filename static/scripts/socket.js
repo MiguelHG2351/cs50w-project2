@@ -10,39 +10,36 @@ export const loadSocket = () => {
     socket.on('connect', () => {
         console.log('Connected to server');
     });
+
+    socket.on('channels list', (data) => {
+        renderChannels(Object.entries(data))
+    });
 }
 
 export const loadMessages = () => {
     
     const currentChannel = localStorage.getItem('current-channel');
-    const joinChannel = `${currentChannel} join`;
+    const joinChannel = `${currentChannel} join-load`;
     
     socket.emit('join channel', currentChannel)
     
     socket.on(joinChannel, (data) => {
         console.log(socket.listeners(joinChannel))
-        console.log(data)
+        console.log(data.messages)
         renderMessages(data.messages)
     });
 }
 
 export const sendMessage = (message) => {
     const currentChannel = localStorage.getItem('current-channel');
-    const joinChannel = `${currentChannel} messages`;
+    const joinChannel = `${currentChannel} join-load`;
     
     console.log(joinChannel);
     socket.emit('send message', currentChannel, message);
-
-    socket.on(joinChannel, (data) => {
-        renderMessages(data.messages)
-    });
 }
 
 export const loadChannel = () => {
     socket.emit('channels list')
-    socket.on('channels list', (data) => {
-        renderChannels(Object.entries(data))
-    });
 }
 
 export const createChannel = (channel) => {

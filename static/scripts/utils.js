@@ -44,6 +44,7 @@ export const renderMessages = function (messages) {
   const $messageList = document.querySelector('#message-list');
   $messageList.innerHTML = '';
 
+  console.log(messages)
   for(const message of messages) {
       const messageCard = document.createElement('message-card')
       messageCard.setAttribute('author', message.author)
@@ -52,6 +53,12 @@ export const renderMessages = function (messages) {
 
       $messageList.appendChild(messageCard)
   }
+
+  // if($messageList.hasAttribute('')) {
+
+  // }
+
+  $messageList.scrollBy(0, $messageList.scrollHeight - $messageList.clientHeight)
 }
 
 export const renderChannels = function (channels) {
@@ -74,6 +81,7 @@ export const renderChannels = function (channels) {
       channelItem.setAttribute('lastMessage', lastMessage)
       channelItem.setAttribute('image', image)
       channelItem.setAttribute('date', date)
+      channelItem.setAttribute('data-channel', name)
 
       $messageList.appendChild(channelItem)
   }

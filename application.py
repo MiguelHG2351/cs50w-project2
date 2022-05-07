@@ -77,12 +77,11 @@ def channels_list():
                 }
             }
 
-    print(my_channels)
     emit('channels list', my_channels, broadcast=True)
 
 @socketio.on('join channel')
 def join_channel(channel):
-    room = f'{channel} join'
+    room = f'{channel} join-load'
     join_room(room)
 
     message_channel = database['channels'][channel]['messages']
@@ -93,7 +92,7 @@ def join_channel(channel):
 
 @socketio.on('send message')
 def join_channel(sid, message):
-    
+    room = f'{sid} join-load'
     if len(database['channels'][sid]['messages']) > 1:
         message_id = database['channels'][sid]['messages'][0]['id'] + 1
     else:
@@ -112,10 +111,10 @@ def join_channel(sid, message):
         'timestamp': datetime.datetime.timestamp(datetime.datetime.now())
     }
     database['channels'][sid]['messages'].append(message_dict)
-    join_room(f'{sid} messages')
-    emit(f'{sid} messages', {
+    join_room(room)
+    emit(room, {
         'messages': database['channels'][sid]['messages']
-    }, room=f'{sid} messages')
+    }, room=room)
 
 # Autenticacion
 def auth(hash_session):
