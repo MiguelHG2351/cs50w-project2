@@ -216,6 +216,45 @@ def upload_channel_image():
         'message': 'Canal creado'
     })
 
+@app.route('/send_message', methods='POST')
+def send_message_controller():
+    message = request.form.get('message')
+    image = request.files.get('imageMessage')
+    channel_name = request.form.get('channel_name')
+
+    image_data = image.read()
+    image_data.close()
+
+    if len(database['channels'][channel_name]['messages']) > 1:
+            message_id = database['channels'][channel_name]['messages'][0]['id'] + 1
+    else:
+        message_id = 1
+
+    author = database['session'].get(request.cookies.get('session'), {}).get('user', None)
+    
+    if author is None:
+        # generate error
+        raise Exception('No te has autenticado')
+
+    message_dict = {
+        'id': message_id,
+        'author': author,
+        'message': message,
+        'image': {
+            'image_binary': lambda: get_image(image_data),
+            'url': f'/images/channel/{channel_name}',
+            'mime_type': image.mimetype
+        },
+        'timestamp': datetime.datetime.timestamp(datetime.datetime.now())
+    }
+
+    database['channels'][channel_name]['messages'].append(message_dict)
+    
+    return jsonify({
+        'success': True,
+        'message': 'Mensaje enviado'
+    })
+
 @app.route("/auth", methods=['GET', 'POST'])
 def _auth():
     if request.method == 'POST':

@@ -95,7 +95,7 @@ function formMessageHandler(e) {
     console.log('submit');
     const message = $formMessage.message.value;
     if(message.length > 0) {
-        sendMessage(message);
+        sendMessage(message, $formMessage.imageMessage.files[0]);
 
         $formMessage.message.value = '';
     }

@@ -30,12 +30,24 @@ export const loadMessages = () => {
     });
 }
 
-export const sendMessage = (message) => {
+export const sendMessage = (message, image = null) => {
     const currentChannel = localStorage.getItem('current-channel');
-    const joinChannel = `${currentChannel} join-load`;
-    
-    console.log(joinChannel);
-    socket.emit('send message', currentChannel, message);
+    const formData = new FormData();
+    formData.append('message', message);
+    formData.append('channel_name', currentChannel);
+    if(image) {
+        formData.append('image', image);
+    }
+
+    fetch('/send_message', {
+        method: 'POST',
+        body: formData
+    }).then(data => data.json())
+    .then(data => {
+        console.log(data)
+    })
+
+    // socket.emit('send message', currentChannel, message);
 }
 
 export const loadChannel = () => {
