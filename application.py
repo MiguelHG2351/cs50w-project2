@@ -91,16 +91,7 @@ def join_channel(channel):
     message_channel = database['channels'][channel]['messages']
 
     for message in message_channel:
-        print('here message')
-        print(message)
         if message['image'] != None:
-            print({
-                **message,
-                'image': {
-                    **message['image'],
-                    'image_binary': ''
-                }
-            })
             channels_list.append({
                 **message,
                 'image': {
@@ -219,28 +210,26 @@ def send_message_controller():
     message = request.form.get('message')
     image = request.files.get('image')
     channel_name = request.form.get('channel_name')
-
-    print(image)
     image_info = None
-    if image != None:
-        image_data = image.read()
-        image.close()
-        image_info = {
-            'image_binary': lambda: get_image(image_data),
-            'url': f'/images/channel/{channel_name}',
-            'mime_type': image.mimetype
-        }
-
 
     if len(database['channels'][channel_name]['messages']) == 100:
         return jsonify({
             'success': False,
             'message': 'El canal ha alcanzado el limite de mensajes'
         }), 403
-    if len(database['channels'][channel_name]['messages']) > 1:
-            message_id = database['channels'][channel_name]['messages'][0]['id'] + 1
+    if len(database['channels'][channel_name]['messages']) > 0:
+            message_id = database['channels'][channel_name]['messages'][-1]['id'] + 1
     else:
         message_id = 1
+
+    if image != None:
+        image_data = image.read()
+        image.close()
+        image_info = {
+            'image_binary': lambda: get_image(image_data),
+            'url': f'/images/channel/{channel_name}/{message_id}',
+            'mime_type': image.mimetype
+        }
 
     author = database['session'].get(request.cookies.get('session'), {}).get('user', None)
     
@@ -310,11 +299,31 @@ def _auth():
 
 @app.route("/images/channel/<channel>")
 def image_channel(channel):
-    get_image = database['channels'][channel]['image']['image_binary']
+    get_image_channel = database['channels'][channel]['image']['image_binary']
     get_mime_type = database['channels'][channel]['image']['mime_type']
 
-    return send_file(get_image(), mimetype=get_mime_type)
+    return send_file(get_image_channel(), mimetype=get_mime_type)
 
+@app.route("/images/channel/<channel>/<message_id_params>")
+def image_message(channel, message_id_params):
+    try:
+        get_messages = database['channels'][channel]['messages']
+        get_image_message = None
+        get_mime_type = None
+        for info in get_messages:
+            if(info['id'] == int(message_id_params)):
+                get_image_message = info['image']['image_binary']
+                print(get_image_message)
+                get_mime_type = info['image']['mime_type']
+        if get_image_message == None:
+            return jsonify({
+                'message': 'Image not found'
+            })
+    except:
+        return jsonify({
+            'message': 'Error'
+        })
+    return send_file(get_image_message(), mimetype=get_mime_type)
 @app.route("/imagen/<name>")
 def image(name):
 
