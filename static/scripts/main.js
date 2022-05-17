@@ -14,7 +14,9 @@ class MessageCard extends HTMLElement {
                 <span>${author}</span>
             </div>
             <div class="message-data">
-                <p>${message}</p>
+                <div class="message-info">
+                    <p>${message}</p>
+                </div>
                 <span class="padding"></span>
             </div>
             <time>${getDate}</time>
@@ -24,8 +26,19 @@ class MessageCard extends HTMLElement {
     }
 
     render() {
-        this.appendChild(this.getTemplate().content.cloneNode(true));
+        const template = this.getTemplate().content.cloneNode(true)
+        this.appendChild(template);
         this.classList.add('message')
+        const image = this.getAttribute('image-url');
+        if(image != 'undefined') {
+            const imageElement = document.createElement('img')
+            imageElement.setAttribute('src', image)
+            imageElement.classList.add('message-img')
+            imageElement.setAttribute('width', 40)
+            this.querySelector('.message-info').appendChild(
+                imageElement
+            )
+        }
     }
     
     connectedCallback() {

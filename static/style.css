@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
 
+:root {
+    --red-slack: #e01e5a;
+}
+
 body {
     margin: 0;
     font-family: 'Poppins', Verdana, Geneva, Tahoma, sans-serif;
@@ -178,6 +182,41 @@ body {
     flex-direction: column;
     color: #fff;
     height: calc(100%  - 72px);
+    position: relative;
+}
+
+.image-preview {
+    background-color: #114669;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 72px;
+    opacity: 0;
+    pointer-events: none;
+    cursor: pointer;
+    transition: opacity .2s ease-in-out;
+    z-index: 20;
+}
+
+.image-preview.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.btn-close-preview-img {
+    position: absolute;
+    top: 20px;
+    right: 10px;
+    border: none;
+    border-radius: 6px;
+    background-color: #e01e5a;
+}
+
+.image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .messages {
@@ -221,8 +260,13 @@ body {
     position: relative;
 }
 
-.message-data > * {
+.message-info p {
     margin: 0;
+}
+
+.message-img {
+    width: 340px;
+    height: 156px;
 }
 
 .message-data p {
@@ -425,3 +469,51 @@ body {
     padding: .5rem;
     outline: 1px transparent;
 }
+
+/* Alerts */
+
+.alert-message {
+    position: fixed;
+    z-index: 1000;
+    align-items: center;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    padding: 12px;
+    gap: 0 12px;
+    border-radius: 4px;
+    transform: translateX(-500px);
+}
+.alert-message.active {
+    transition: transform 0.3s ease;
+    transform: translateX(0);
+}
+.alert-message.error-alert {
+    background: #f96179;
+}
+.alert-message.error-alert .message-icon {
+    background: #fb889a;
+}
+.alert-message.success-alert {
+    background: #789dff;
+}
+.alert-message.success-alert .message-icon {
+    background: #98b4ff;
+}
+.alert-message .message-icon {
+    border-radius: 50%;
+    padding: 0px;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.alert-message .alert-message-text {
+    color: #eee;
+}
+.alert-message .alert-message-text p {
+    font-size: 14px;
+    margin: 0;
+}
+

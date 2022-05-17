@@ -50,6 +50,7 @@ export const renderMessages = function (messages) {
       messageCard.setAttribute('author', message.author)
       messageCard.setAttribute('message', message.message)
       messageCard.setAttribute('date', message.timestamp)
+      messageCard.setAttribute('image-url', message.image?.url)
 
       $messageList.appendChild(messageCard)
   }

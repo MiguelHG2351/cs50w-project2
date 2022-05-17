@@ -1,3 +1,4 @@
+import { alertError } from './utils/alert.js'
 import { renderMessages, renderChannels } from './utils.js'
 import 'https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.js';
 
@@ -20,10 +21,11 @@ export const loadMessages = () => {
     
     const currentChannel = localStorage.getItem('current-channel');
     const joinChannel = `${currentChannel} join-load`;
-    
+    console.log('here');
     socket.emit('join channel', currentChannel)
     
     socket.on(joinChannel, (data) => {
+        console.log('here socket');
         console.log(socket.listeners(joinChannel))
         console.log(data.messages)
         renderMessages(data.messages)
@@ -45,19 +47,25 @@ export const sendMessage = (message, image = null) => {
     }).then(data => data.json())
     .then(data => {
         console.log(data)
+        if(!data.success) {
+            return alertError(data.message)
+        }
+        loadMessages();
     })
 
-    // socket.emit('send message', currentChannel, message);
 }
 
 export const loadChannel = () => {
     socket.emit('channels list')
 }
 
-export const createChannel = (channel) => {
-    socket.emit('create channel', channel);
+// export const createChannel = (channel) => {
+//     socket.emit('create channel', channel);
 
-    socket.on('channel created', (data) => {
-        console.log(data);
-    });
-}
+//     socket.on('channel created', (data) => {
+//         if(!data.success) {
+//             console.log('Here')
+//             return alertError(data.message)
+//         }
+//     });
+// }

@@ -60,18 +60,22 @@
             </div>
             <div class="message-header-right">
                 <button class="btn-add-user" id="btn-add-user">
-                    <img src="/static/icons/add-icon.svg" width="18" alt="agregar icono">
+                    <img loading="lazy" src="/static/icons/add-icon.svg" width="18" alt="agregar icono">
                 </button>
             </div>
         </header>
         <div class="messages-list">
+            <div class="image-preview" id="image-message-container">
+                <button class="btn-close-preview-img"><img src="/static/icons/leave.svg" width="32" alt="salir icono"></button>
+                <img src="/static/images/platzi.png" alt="imagenes">
+            </div>
             <div class="messages" id="message-list">
             </div>
             <form class="form-message" id="form-message">
                 <div class="message-options">
                     <div class="image-message-option">
                         <img src="/static/icons/image-icon.svg" alt="Imagen icono">
-                        <input class="input-file-image" name="imageMessage" type="file" />
+                        <input class="input-file-image" id="input-message-image" name="imageMessage" type="file" />
                     </div>
                 </div>
                 <div class="form-message-container">
@@ -122,7 +126,7 @@
     <form class="form-modal" id="form-create-channel">
         <div class="add-image">
             <span>Agregar imagen</span>
-            <input type="file" class="add-image-input" required name="image_channel" accept="image/*">
+            <input type="file" class="channe-image-input" required name="image_channel" accept="image/*">
         </div>
         <input type="text" name="channel_name" autocomplete="new-password" placeholder="Ingresa nombre de un canal" required>
     </form>

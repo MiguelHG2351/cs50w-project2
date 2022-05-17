@@ -6,6 +6,9 @@ import hashlib
 from flask import Flask, render_template, jsonify, request, make_response,send_file
 from flask_socketio import SocketIO, emit, join_room, leave_room
 
+# utils
+from utils import without_keys
+
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 socketio = SocketIO(app)
@@ -84,36 +87,34 @@ def join_channel(channel):
     room = f'{channel} join-load'
     join_room(room)
 
+    channels_list = []
     message_channel = database['channels'][channel]['messages']
 
+    for message in message_channel:
+        print('here message')
+        print(message)
+        if message['image'] != None:
+            print({
+                **message,
+                'image': {
+                    **message['image'],
+                    'image_binary': ''
+                }
+            })
+            channels_list.append({
+                **message,
+                'image': {
+                    **message['image'],
+                    'image_binary': ''
+                }
+            })
+        else:
+            channels_list.append({
+                **message,
+            })
+
     emit(room, {
-        'messages': message_channel
-    }, room=room)
-
-@socketio.on('send message')
-def join_channel(sid, message):
-    room = f'{sid} join-load'
-    if len(database['channels'][sid]['messages']) > 1:
-        message_id = database['channels'][sid]['messages'][0]['id'] + 1
-    else:
-        message_id = 1
-
-    author = database['session'].get(request.cookies.get('session'), {}).get('user', None)
-
-    if author is None:
-        # generate error
-        raise Exception('No te has autenticado')
-
-    message_dict = {
-        'id': message_id,
-        'author': author,
-        'message': message,
-        'timestamp': datetime.datetime.timestamp(datetime.datetime.now())
-    }
-    database['channels'][sid]['messages'].append(message_dict)
-    join_room(room)
-    emit(room, {
-        'messages': database['channels'][sid]['messages']
+        'messages': channels_list
     }, room=room)
 
 # Autenticacion
@@ -155,8 +156,6 @@ def _index():
                 }
             }
     
-    print(my_channels)
-
     return render_template("index.html", channels=my_channels)
 
 @app.route('/add-user', methods=['POST'])
@@ -209,22 +208,35 @@ def upload_channel_image():
     database['headers']['channels_count'] += 1
     database['channels'][channel_name] = channel_dict
 
-    print(database['channels'])
 
     return jsonify({
         'success': True,
         'message': 'Canal creado'
     })
 
-@app.route('/send_message', methods='POST')
+@app.route('/send_message', methods=['POST'])
 def send_message_controller():
     message = request.form.get('message')
-    image = request.files.get('imageMessage')
+    image = request.files.get('image')
     channel_name = request.form.get('channel_name')
 
-    image_data = image.read()
-    image_data.close()
+    print(image)
+    image_info = None
+    if image != None:
+        image_data = image.read()
+        image.close()
+        image_info = {
+            'image_binary': lambda: get_image(image_data),
+            'url': f'/images/channel/{channel_name}',
+            'mime_type': image.mimetype
+        }
 
+
+    if len(database['channels'][channel_name]['messages']) == 100:
+        return jsonify({
+            'success': False,
+            'message': 'El canal ha alcanzado el limite de mensajes'
+        }), 403
     if len(database['channels'][channel_name]['messages']) > 1:
             message_id = database['channels'][channel_name]['messages'][0]['id'] + 1
     else:
@@ -240,11 +252,7 @@ def send_message_controller():
         'id': message_id,
         'author': author,
         'message': message,
-        'image': {
-            'image_binary': lambda: get_image(image_data),
-            'url': f'/images/channel/{channel_name}',
-            'mime_type': image.mimetype
-        },
+        'image': image_info,
         'timestamp': datetime.datetime.timestamp(datetime.datetime.now())
     }
 
@@ -292,7 +300,6 @@ def _auth():
 
             return response, 200
         except Exception as e:
-            print(e)
             return jsonify({
                 'success': False,
                 'message': 'No se puede agregar este usuario',
