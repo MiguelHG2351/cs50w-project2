@@ -218,7 +218,7 @@ function formAddUserHandler(e) {
         } else {
             $formAddUser.reset();
             toggleModal($modalAddUser)();
-            alertError('El usuario ya esta en el canal');
+            alertError(data.message);
             $formMessage.message.focus();
         }
     }).catch(err => console.error(err))
