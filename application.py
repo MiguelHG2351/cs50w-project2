@@ -154,6 +154,14 @@ def add_user_channel():
     username = request.form.get('username')
     channel = request.form.get('channel')
 
+    try:
+        database['users'][username]['id']
+    except:
+        return jsonify({
+            'success': False,
+            'message': 'El usuario no existe'
+        })
+
     if database['users'][username]['id'] in database['channels'][channel]['users']:
         return jsonify({
             'success': False,

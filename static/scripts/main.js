@@ -64,7 +64,7 @@ class ChannelItem extends HTMLElement {
         const template = document.createElement('template');
         template.innerHTML = `
             <div class="channel-image">
-                <img src="${image}" height="48" alt="platzi">
+                <img src="${image}" height="48" width="48" alt="platzi">
             </div>
             <div class="channel-info">
                 <div class="channel-info-intro">

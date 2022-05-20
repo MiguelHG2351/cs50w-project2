@@ -65,8 +65,17 @@ function toggleModal($modal) {
 export function channelHandler() {
     const channel = this.dataset.channel;
 
+    const beforeChannel = window.localStorage.getItem('current-channel')
+    let channelElement = document.querySelector(`[data-channel="${beforeChannel}"]`)
+    const isDesktop = window.innerWidth > 968;
+    
+    if(beforeChannel && channelElement != null) {
+        channelElement.classList.remove('active');
+    }
+    this.classList.toggle('active');
     window.localStorage.setItem('current-channel', channel);
-    if(!$messagesContainer.classList.contains('active')) {
+    this.classList.add('active');
+    if(!$messagesContainer.classList.contains('active') || isDesktop) {
         loadMessages();
         $formMessage.message.focus();
         $messagesContainer.classList.add('active');
@@ -162,7 +171,7 @@ function inputImageMessageHandler() {
         $showImageContainer.classList.add('active')
         // create url image
         const urlImage = URL.createObjectURL(this.files[0])
-        $showImageContainer.children[0].src = urlImage
+        $showImageContainer.children[1].setAttribute('src', urlImage)
         $inputMessage.value = '';
         $messageOptions.classList.remove('active')
     }

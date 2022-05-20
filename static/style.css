@@ -53,19 +53,24 @@ body {
     gap: .5rem;
     padding: 1rem 2rem;
     color: #fff;
-    background-color: #114669;
     cursor: pointer;
+}
+
+.channel.active {
+    background-color: #114669;
 }
 
 .channel-image {
     background-color: #09f;
+    overflow: hidden;
     border-radius: 50%;
     height: 48px;
-}
-
-.channel-image {
     display: inline-block;
     vertical-align: middle;
+}
+
+.channel-image img {
+    object-fit: cover;
 }
 
 .channel-info {
@@ -181,7 +186,7 @@ body {
     display: flex;
     flex-direction: column;
     color: #fff;
-    height: calc(100%  - 72px);
+    height: calc(100vh  - 72px);
     position: relative;
 }
 
@@ -453,7 +458,7 @@ body {
     background-color: #2eb67d;
 }
 
-.add-image-input {
+.channe-image-input {
     cursor: pointer;
     position: absolute;
     top: 0;
@@ -517,3 +522,32 @@ body {
     margin: 0;
 }
 
+@media screen and (min-width: 968px) {
+    .main {
+        display: grid;
+        grid-template-columns: 30% 70%;
+    }
+
+    .header-sidenav {
+        padding: 1rem .5rem;
+        border-bottom: 1px solid #cccccc2b;
+    }
+
+    .header-sidenav img {
+        height: 32px;
+    }
+
+    .messages-header {
+        border-left: 1px solid #cccccc2b;
+    }
+
+    .messages-container {
+        position: static;
+        transform: translate(0);
+        width: 100%;
+    }
+
+    .form-message {
+        border-left: 1px solid #cccccc2b;
+    }
+}
